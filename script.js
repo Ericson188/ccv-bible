@@ -1,3 +1,54 @@
+// PWA Installation
+let deferredPrompt;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    // Prevent the mini-infobar from appearing on mobile
+    e.preventDefault();
+    // Stash the event so it can be triggered later.
+    deferredPrompt = e;
+    // Update UI to notify the user they can install the PWA
+    showInstallButton();
+});
+
+function showInstallButton() {
+    const downloadBtn = document.getElementById('download-btn');
+    if (downloadBtn) {
+        downloadBtn.style.display = 'inline-block';
+        downloadBtn.textContent = 'Install App';
+        downloadBtn.addEventListener('click', installApp);
+    }
+}
+
+function installApp() {
+    if (!deferredPrompt) return;
+    
+    // Show the install prompt
+    deferredPrompt.prompt();
+    
+    // Wait for the user to respond to the prompt
+    deferredPrompt.userChoice.then((choiceResult) => {
+        if (choiceResult.outcome === 'accepted') {
+            console.log('User accepted the install prompt');
+        } else {
+            console.log('User dismissed the install prompt');
+        }
+        deferredPrompt = null;
+    });
+}
+
+// Register service worker
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+            .then(registration => {
+                console.log('SW registered: ', registration);
+            })
+            .catch(registrationError => {
+                console.log('SW registration failed: ', registrationError);
+            });
+    });
+}
+
 const bookNames = [
     "Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy", "Joshua", "Judges", "Ruth",
     "1 Samuel", "2 Samuel", "1 Kings", "2 Kings", "1 Chronicles", "2 Chronicles", "Ezra", "Nehemiah",
@@ -10,8 +61,8 @@ const bookNames = [
 ];
 
 const versions = [
-    { name: "English ESV", file: "/bibles/EnglishESVBible.xml" },
-    { name: "Cebuano", file: "/bibles/CebuanoBible.xml" }
+    { name: "English ESV", file: "./bibles/EnglishESVBible.xml" },
+    { name: "Cebuano", file: "./bibles/CebuanoBible.xml" }
 ];
 
 let currentXmlDoc = null;
@@ -469,9 +520,8 @@ function setupEventListeners() {
         displayChapter();
     });
 
-    document.getElementById('download-btn')?.addEventListener('click', () => {
-        alert('This app is a PWA. To use it offline, please install it to your home screen or desktop.');
-    });
+    // Download button is handled by the PWA install logic
+    // See the installApp function above
     
     // Settings
     if (settingsBtn) {
@@ -496,6 +546,12 @@ function setupEventListeners() {
             fontSizeValue.textContent = `${newSize}px`;
             localStorage.setItem('fontSize', newSize);
         });
+    }
+    
+    // Clear cache button
+    const clearCacheBtn = document.getElementById('clear-cache-btn');
+    if (clearCacheBtn) {
+        clearCacheBtn.addEventListener('click', clearAllCaches);
     }
 }
 
@@ -693,6 +749,50 @@ function navigateToParsedRef(query) {
     
     document.getElementById('tab-bible').click();
     return true;
+}
+
+// Cache clearing function
+async function clearAllCaches() {
+    try {
+        // Show confirmation dialog
+        const confirmed = confirm('This will clear all offline data and reload the app. Continue?');
+        if (!confirmed) return;
+        
+        // Clear service worker caches
+        if ('caches' in window) {
+            const cacheNames = await caches.keys();
+            await Promise.all(
+                cacheNames.map(cacheName => {
+                    console.log('Deleting cache:', cacheName);
+                    return caches.delete(cacheName);
+                })
+            );
+            console.log('All caches cleared!');
+        }
+        
+        // Unregister service workers
+        if ('serviceWorker' in navigator) {
+            const registrations = await navigator.serviceWorker.getRegistrations();
+            await Promise.all(
+                registrations.map(registration => {
+                    console.log('Unregistering service worker:', registration.scope);
+                    return registration.unregister();
+                })
+            );
+            console.log('All service workers unregistered!');
+        }
+        
+        // Clear localStorage
+        localStorage.clear();
+        console.log('localStorage cleared!');
+        
+        // Reload the page
+        window.location.reload();
+        
+    } catch (error) {
+        console.error('Error clearing caches:', error);
+        alert('Failed to clear cache. Please try again.');
+    }
 }
 
 // Initialize the app
