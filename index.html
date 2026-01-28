@@ -10,6 +10,9 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Bible" />
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' fill='%23121212'/><text x='96' y='120' font-family='Arial' font-size='120' fill='white' text-anchor='middle'>✝️</text></svg>">
+    <meta name="format-detection" content="telephone=no">
 </head>
 <body class="dark-mode">
     <header>
@@ -17,7 +20,7 @@
             <h1>Bible App</h1>
             <div class="top-actions">
                 <button id="settings-btn" class="inline-btn" title="Settings">⚙️</button>
-                <button id="download-btn" class="inline-btn">Download for Offline</button>
+                <button id="download-btn" class="inline-btn" style="display: none;">Install App</button>
             </div>
         </div>
         <div class="search-container">
@@ -83,6 +86,10 @@
                     <label for="font-size-slider">Text Size:</label>
                     <input type="range" id="font-size-slider" min="12" max="24" value="16" step="1">
                     <span id="font-size-value">16px</span>
+                </div>
+                <div class="setting-item">
+                    <button id="clear-cache-btn" class="inline-btn">Clear Cache & Reload</button>
+                    <p class="setting-description">Clears offline data and reloads the app</p>
                 </div>
             </div>
         </div>
