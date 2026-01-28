@@ -376,6 +376,14 @@ button:hover {
     min-width: 200px;
 }
 
+.setting-description {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    width: 100%;
+    text-align: center;
+}
+
 #font-size-value {
     margin-left: 0.5rem;
     min-width: 40px;
