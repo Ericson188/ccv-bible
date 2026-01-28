@@ -6,7 +6,7 @@
     <title>Bible App</title>
     <link rel="stylesheet" href="style.css" />
     <link rel="manifest" href="manifest.json" />
-    <meta name="theme-color" content="#121212" />
+    <meta name="theme-color" content="#121212" id="theme-color-meta" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -16,11 +16,15 @@
         <div class="top-bar">
             <h1>Bible App</h1>
             <div class="top-actions">
+                <button id="settings-btn" class="inline-btn" title="Settings">⚙️</button>
                 <button id="download-btn" class="inline-btn">Download for Offline</button>
             </div>
         </div>
         <div class="search-container">
-            <input type="text" id="verse-search" placeholder="Search for a verse or keyword...">
+            <div class="search-wrapper">
+                <input type="text" id="verse-search" placeholder="Search for a verse or keyword...">
+                <span id="search-icon">🔍</span>
+            </div>
             <div id="search-results" class="hidden"></div>
         </div>
         <nav class="controls">
@@ -60,10 +64,34 @@
         </div>
     </main>
 
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-modal" data-modal="settings-modal">&times;</span>
+            <div class="modal-header">
+                <h3>Settings</h3>
+            </div>
+            <div class="settings-options">
+                <div class="setting-item">
+                    <label for="theme-select">Theme:</label>
+                    <select id="theme-select">
+                        <option value="dark">Dark Mode</option>
+                        <option value="light">Light Mode</option>
+                    </select>
+                </div>
+                <div class="setting-item">
+                    <label for="font-size-slider">Text Size:</label>
+                    <input type="range" id="font-size-slider" min="12" max="24" value="16" step="1">
+                    <span id="font-size-value">16px</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <!-- Verse Selection Modal -->
     <div id="verse-modal" class="modal hidden">
         <div class="modal-content">
-            <span class="close-modal">&times;</span>
+            <span class="close-modal" data-modal="verse-modal">&times;</span>
             <div class="modal-header">
                 <h3 id="modal-verse-ref"></h3>
             </div>
