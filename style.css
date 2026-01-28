@@ -5,15 +5,67 @@
 }
 
 :root {
-    --primary-color: #2c3e50;
-    --secondary-color: #3498db;
-    --background-color: #121212;
-    --surface-color: #1e1e1e;
-    --text-color: #ffffff;
-    --text-secondary: #b0b0b0;
-    --highlight-color: #f39c12;
-    --border-color: #333;
-    --modal-background: rgba(0, 0, 0, 0.8);
+    /* Base font size */
+    --base-font-size: 16px;
+    
+    /* Dark mode variables */
+    --primary-color-dark: #2c3e50;
+    --secondary-color-dark: #3498db;
+    --background-color-dark: #121212;
+    --surface-color-dark: #1e1e1e;
+    --text-color-dark: #ffffff;
+    --text-secondary-dark: #b0b0b0;
+    --highlight-color-dark: #f39c12;
+    --border-color-dark: #333;
+    --modal-background-dark: rgba(0, 0, 0, 0.8);
+    
+    /* Light mode variables */
+    --primary-color-light: #34495e;
+    --secondary-color-light: #2980b9;
+    --background-color-light: #ffffff;
+    --surface-color-light: #f5f5f5;
+    --text-color-light: #333333;
+    --text-secondary-light: #666666;
+    --highlight-color-light: #e67e22;
+    --border-color-light: #ddd;
+    --modal-background-light: rgba(0, 0, 0, 0.6);
+    
+    /* Current theme variables */
+    --primary-color: var(--primary-color-dark);
+    --secondary-color: var(--secondary-color-dark);
+    --background-color: var(--background-color-dark);
+    --surface-color: var(--surface-color-dark);
+    --text-color: var(--text-color-dark);
+    --text-secondary: var(--text-secondary-dark);
+    --highlight-color: var(--highlight-color-dark);
+    --border-color: var(--border-color-dark);
+    --modal-background: var(--modal-background-dark);
+}
+
+/* Light mode theme */
+.light-mode {
+    --primary-color: var(--primary-color-light);
+    --secondary-color: var(--secondary-color-light);
+    --background-color: var(--background-color-light);
+    --surface-color: var(--surface-color-light);
+    --text-color: var(--text-color-light);
+    --text-secondary: var(--text-secondary-light);
+    --highlight-color: var(--highlight-color-light);
+    --border-color: var(--border-color-light);
+    --modal-background: var(--modal-background-light);
+}
+
+/* Dark mode theme */
+.dark-mode {
+    --primary-color: var(--primary-color-dark);
+    --secondary-color: var(--secondary-color-dark);
+    --background-color: var(--background-color-dark);
+    --surface-color: var(--surface-color-dark);
+    --text-color: var(--text-color-dark);
+    --text-secondary: var(--text-secondary-dark);
+    --highlight-color: var(--highlight-color-dark);
+    --border-color: var(--border-color-dark);
+    --modal-background: var(--modal-background-dark);
 }
 
 body {
@@ -22,6 +74,7 @@ body {
     color: var(--text-color);
     line-height: 1.6;
     min-height: 100vh;
+    font-size: var(--base-font-size);
 }
 
 /* Header Styles */
@@ -46,14 +99,33 @@ h1 {
     background-color: var(--surface-color);
 }
 
+.search-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
 #verse-search {
     width: 100%;
-    padding: 0.75rem 1rem;
+    padding: 0.75rem 2.5rem 0.75rem 1rem; /* Add padding to the right for the icon */
     background-color: var(--background-color);
     border: 1px solid var(--border-color);
     border-radius: 4px;
     color: var(--text-color);
     font-size: 1rem;
+}
+
+#search-icon {
+    position: absolute;
+    right: 1rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    z-index: 1;
+    transition: color 0.2s;
+}
+
+#search-icon:hover {
+    color: var(--secondary-color);
 }
 
 #verse-search:focus {
@@ -130,6 +202,7 @@ button {
     cursor: pointer;
     font-weight: 500;
     transition: background-color 0.2s;
+    min-height: 44px; /* Better touch target for mobile */
 }
 
 button:hover {
@@ -137,12 +210,13 @@ button:hover {
 }
 
 .inline-btn {
-    background-color: var(--surface-color);
+    background: transparent;
     border: 1px solid var(--border-color);
+    color: var(--text-color);
 }
 
 .inline-btn:hover {
-    background-color: var(--background-color);
+    background-color: var(--surface-color);
 }
 
 /* Main Content */
@@ -266,6 +340,50 @@ button:hover {
     z-index: 2000;
 }
 
+.settings-options {
+    width: 100%;
+    margin-top: 1rem;
+}
+
+.setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.setting-item:last-child {
+    border-bottom: none;
+}
+
+.setting-item label {
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.setting-item select,
+.setting-item input[type="range"] {
+    padding: 0.5rem;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    min-width: 150px;
+}
+
+.setting-item input[type="range"] {
+    min-width: 200px;
+}
+
+#font-size-value {
+    margin-left: 0.5rem;
+    min-width: 40px;
+    display: inline-block;
+    color: var(--secondary-color);
+    font-weight: bold;
+}
+
 .modal.hidden {
     display: none;
 }
@@ -327,20 +445,56 @@ button:hover {
 
 /* Responsive Design */
 @media (max-width: 768px) {
+    .top-bar {
+        flex-direction: row;
+        justify-content: space-between;
+        padding: 0.75rem;
+    }
+    
+    h1 {
+        font-size: 1.25rem;
+    }
+    
+    .top-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
     .controls {
         flex-direction: column;
     }
     
     select, button {
         width: 100%;
+        min-width: auto;
+    }
+    
+    .inline-btn {
+        padding: 0.4rem 0.75rem;
+        font-size: 0.9rem;
     }
     
     .verse-range-group {
         width: 100%;
+        flex-direction: row;
+        justify-content: center;
     }
     
     .modal-content {
         width: 95%;
         padding: 1.5rem;
+        margin: 1rem;
+    }
+    
+    .setting-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .setting-item select,
+    .setting-item input[type="range"] {
+        width: 100%;
+        min-width: auto;
     }
 }
