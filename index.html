@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bible Gateway Web App</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#121212">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+</head>
+<body class="dark-mode">
+    <header>
+        <div class="top-bar">
+            <h1>Bible Gateway</h1>
+            <div class="top-actions">
+                <button id="download-btn" class="inline-btn">Download for Offline</button>
+            </div>
+        </div>
+        <div class="search-container">
+            <input type="text" id="verse-search" placeholder="Search for a verse or keyword...">
+            <div id="search-results" class="hidden"></div>
+        </div>
+        <nav class="controls">
+            <select id="version-select"></select>
+            <select id="book-select"></select>
+            <select id="chapter-select"></select>
+            <div class="verse-range-group">
+                <select id="from-verse"></select>
+                <span class="verse-range-label">to</span>
+                <select id="to-verse"></select>
+            </div>
+            <button id="prev-chapter">← Prev</button>
+            <button id="next-chapter">Next →</button>
+        </nav>
+    </header>
+
+    <main id="content">
+        <div id="personalization-tabs">
+            <button id="tab-bible" class="active">Bible</button>
+            <button id="tab-bookmarks">Bookmarks</button>
+            <button id="tab-notes">Notes</button>
+        </div>
+
+        <div id="bible-display" class="tab-content">
+            <h2 id="current-title">Select a Chapter</h2>
+            <div id="verses-container"></div>
+        </div>
+
+        <div id="bookmarks-display" class="tab-content hidden">
+            <h2>Bookmarks</h2>
+            <div id="bookmarks-container"></div>
+        </div>
+
+        <div id="notes-display" class="tab-content hidden">
+            <h2>Your Notes</h2>
+            <div id="notes-container"></div>
+        </div>
+    </main>
+
+    <!-- Verse Selection Modal -->
+    <div id="verse-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="modal-header">
+                <h3 id="modal-verse-ref"></h3>
+            </div>
+            <div class="modal-actions">
+                <button id="modal-highlight" class="inline-btn">Highlight</button>
+                <button id="modal-bookmark" class="inline-btn">Bookmark</button>
+            </div>
+            <textarea id="modal-note-text" placeholder="Add a note..."></textarea>
+            <button id="save-note" class="inline-btn">Save Note</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

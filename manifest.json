@@ -1,0 +1,10 @@
+{
+    "name": "Bible Gateway App",
+    "short_name": "Bible",
+    "description": "An offline-first Bible Gateway-like web application.",
+    "start_url": "./index.html",
+    "display": "standalone",
+    "background_color": "#121212",
+    "theme_color": "#121212",
+    "icons": []
+}

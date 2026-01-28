@@ -1,0 +1,346 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary-color: #2c3e50;
+    --secondary-color: #3498db;
+    --background-color: #121212;
+    --surface-color: #1e1e1e;
+    --text-color: #ffffff;
+    --text-secondary: #b0b0b0;
+    --highlight-color: #f39c12;
+    --border-color: #333;
+    --modal-background: rgba(0, 0, 0, 0.8);
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+/* Header Styles */
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background-color: var(--primary-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+/* Search Container */
+.search-container {
+    position: relative;
+    padding: 0.75rem 1rem;
+    background-color: var(--surface-color);
+}
+
+#verse-search {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background-color: var(--background-color);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    color: var(--text-color);
+    font-size: 1rem;
+}
+
+#verse-search:focus {
+    outline: none;
+    border-color: var(--secondary-color);
+}
+
+#search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: 0 0 4px 4px;
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 1000;
+}
+
+.search-item {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.search-item:hover {
+    background-color: var(--background-color);
+}
+
+.search-ref {
+    color: var(--secondary-color);
+    font-weight: 600;
+    margin-right: 0.5rem;
+}
+
+/* Controls */
+.controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background-color: var(--surface-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+select {
+    padding: 0.5rem;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    min-width: 120px;
+}
+
+.verse-range-group {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.verse-range-label {
+    color: var(--text-secondary);
+    padding: 0 0.25rem;
+}
+
+button {
+    padding: 0.5rem 1rem;
+    background-color: var(--secondary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+button:hover {
+    background-color: #2980b9;
+}
+
+.inline-btn {
+    background-color: var(--surface-color);
+    border: 1px solid var(--border-color);
+}
+
+.inline-btn:hover {
+    background-color: var(--background-color);
+}
+
+/* Main Content */
+#content {
+    padding: 1rem;
+}
+
+#personalization-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.5rem;
+}
+
+#personalization-tabs button {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+}
+
+#personalization-tabs button.active {
+    color: var(--text-color);
+    background-color: var(--surface-color);
+}
+
+.tab-content {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Verses */
+#current-title {
+    margin-bottom: 1.5rem;
+    color: var(--secondary-color);
+}
+
+#verses-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.verse {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background-color: var(--surface-color);
+    border-radius: 4px;
+    border-left: 3px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.verse:hover {
+    background-color: rgba(52, 152, 219, 0.1);
+    border-left-color: var(--secondary-color);
+}
+
+.verse.highlighted {
+    background-color: rgba(243, 156, 18, 0.15);
+    border-left-color: var(--highlight-color);
+}
+
+.verse-number {
+    color: var(--secondary-color);
+    font-weight: bold;
+    margin-right: 0.5rem;
+    font-size: 0.9em;
+}
+
+.note-indicator {
+    margin-left: 0.5rem;
+    opacity: 0.7;
+}
+
+.search-highlight {
+    animation: pulse 2s;
+}
+
+@keyframes pulse {
+    0%, 100% { background-color: var(--surface-color); }
+    50% { background-color: rgba(52, 152, 219, 0.3); }
+}
+
+/* Personalization Items */
+.personalization-item {
+    padding: 1rem;
+    background-color: var(--surface-color);
+    border-radius: 4px;
+    margin-bottom: 0.75rem;
+    border: 1px solid var(--border-color);
+}
+
+.personalization-item strong {
+    color: var(--secondary-color);
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.personalization-item p {
+    color: var(--text-secondary);
+    margin-top: 0.5rem;
+}
+
+/* Modal */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--modal-background);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-content {
+    background-color: var(--surface-color);
+    padding: 2rem;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+}
+
+.close-modal {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-secondary);
+}
+
+.close-modal:hover {
+    color: var(--text-color);
+}
+
+.modal-header {
+    margin-bottom: 1.5rem;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+#modal-note-text {
+    width: 100%;
+    min-height: 100px;
+    padding: 0.75rem;
+    background-color: var(--background-color);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    color: var(--text-color);
+    margin-bottom: 1rem;
+    resize: vertical;
+}
+
+#save-note {
+    width: 100%;
+}
+
+/* Utility Classes */
+.hidden {
+    display: none !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .controls {
+        flex-direction: column;
+    }
+    
+    select, button {
+        width: 100%;
+    }
+    
+    .verse-range-group {
+        width: 100%;
+    }
+    
+    .modal-content {
+        width: 95%;
+        padding: 1.5rem;
+    }
+}
