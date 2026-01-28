@@ -39,6 +39,23 @@ const verseSearch = document.getElementById('verse-search');
 const searchResults = document.getElementById('search-results');
 const versesContainer = document.getElementById('verses-container');
 const currentTitle = document.getElementById('current-title');
+const settingsBtn = document.getElementById('settings-btn');
+const settingsModal = document.getElementById('settings-modal');
+const themeSelect = document.getElementById('theme-select');
+const fontSizeSlider = document.getElementById('font-size-slider');
+const fontSizeValue = document.getElementById('font-size-value');
+const searchIcon = document.getElementById('search-icon');
+
+// Theme Management
+const currentTheme = localStorage.getItem('theme') || 'dark';
+const currentFontSize = localStorage.getItem('fontSize') || '16';
+
+// Apply saved theme on page load
+document.body.classList.add(`${currentTheme}-mode`);
+themeSelect.value = currentTheme;
+document.documentElement.style.setProperty('--base-font-size', `${currentFontSize}px`);
+fontSizeSlider.value = currentFontSize;
+fontSizeValue.textContent = `${currentFontSize}px`;
 
 // Modal Elements
 const verseModal = document.getElementById('verse-modal');
@@ -54,6 +71,38 @@ const tabs = {
     'tab-bookmarks': 'bookmarks-display',
     'tab-notes': 'notes-display'
 };
+
+// Theme Functions
+function changeTheme(theme) {
+    // Update classes
+    document.body.classList.remove('dark-mode', 'light-mode');
+    document.body.classList.add(`${theme}-mode`);
+    
+    // Update localStorage
+    localStorage.setItem('theme', theme);
+    
+    // Update theme-color meta tag
+    const themeColorMeta = document.getElementById('theme-color-meta');
+    if (themeColorMeta) {
+        themeColorMeta.setAttribute('content', theme === 'dark' ? '#121212' : '#ffffff');
+    }
+}
+
+function updateThemeIcon(theme) {
+    const icon = theme === 'dark' ? '🌙' : '☀️';
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    
+    // Update theme-color meta tag
+    const themeColorMeta = document.getElementById('theme-color-meta');
+    if (themeColorMeta) {
+        themeColorMeta.setAttribute('content', theme === 'dark' ? '#121212' : '#ffffff');
+    }
+    
+    if (themeToggleBtn) {
+        themeToggleBtn.textContent = icon;
+        themeToggleBtn.title = `Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`;
+    }
+}
 
 // Initialize
 async function init() {
@@ -247,7 +296,7 @@ function setupEventListeners() {
     verseSearch.addEventListener('input', (e) => {
         clearTimeout(searchTimeout);
         const query = e.target.value.trim().toLowerCase();
-        if (query.length < 3) {
+        if (query.length < 1) { // Allow searching with single characters
             searchResults.classList.add('hidden');
             return;
         }
@@ -266,6 +315,29 @@ function setupEventListeners() {
         }
     });
 
+    // Search icon click handler
+    if (searchIcon) {
+        searchIcon.addEventListener('click', () => {
+            const query = verseSearch.value.trim();
+            if (query) {
+                // Clear any existing timeout
+                if (searchTimeout) {
+                    clearTimeout(searchTimeout);
+                }
+                
+                // First check if it's a verse reference (e.g., "Matthew 21-27", "Luke 1:3-4")
+                if (navigateToParsedRef(query)) {
+                    searchResults.classList.add('hidden');
+                    verseSearch.blur();
+                    return;
+                }
+                
+                // If not a verse reference, treat as keyword search
+                performSearch(query);
+            }
+        });
+    }
+    
     document.addEventListener('click', (e) => {
         if (!verseSearch.contains(e.target) && !searchResults.contains(e.target)) {
             searchResults.classList.add('hidden');
@@ -273,19 +345,26 @@ function setupEventListeners() {
     });
 
     // Modal
-    document.querySelector('.close-modal')?.addEventListener('click', () => {
-        verseModal.classList.add('hidden');
+    document.querySelectorAll('.close-modal').forEach(closeBtn => {
+        closeBtn.addEventListener('click', () => {
+            const modalId = closeBtn.getAttribute('data-modal');
+            document.getElementById(modalId)?.classList.add('hidden');
+        });
     });
 
-    verseModal?.addEventListener('click', (e) => {
+    document.addEventListener('click', (e) => {
         if (e.target === verseModal) {
             verseModal.classList.add('hidden');
+        }
+        if (e.target === settingsModal) {
+            settingsModal.classList.add('hidden');
         }
     });
 
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             verseModal.classList.add('hidden');
+            settingsModal.classList.add('hidden');
             searchResults.classList.add('hidden');
         }
     });
@@ -393,6 +472,31 @@ function setupEventListeners() {
     document.getElementById('download-btn')?.addEventListener('click', () => {
         alert('This app is a PWA. To use it offline, please install it to your home screen or desktop.');
     });
+    
+    // Settings
+    if (settingsBtn) {
+        settingsBtn.addEventListener('click', () => {
+            settingsModal.classList.remove('hidden');
+        });
+    }
+    
+    // Theme selection
+    if (themeSelect) {
+        themeSelect.addEventListener('change', (e) => {
+            const newTheme = e.target.value;
+            changeTheme(newTheme);
+        });
+    }
+    
+    // Font size slider
+    if (fontSizeSlider) {
+        fontSizeSlider.addEventListener('input', (e) => {
+            const newSize = e.target.value;
+            document.documentElement.style.setProperty('--base-font-size', `${newSize}px`);
+            fontSizeValue.textContent = `${newSize}px`;
+            localStorage.setItem('fontSize', newSize);
+        });
+    }
 }
 
 // Service Worker Registration
@@ -434,6 +538,10 @@ function performSearch(query) {
     const results = [];
     const books = currentXmlDoc.querySelectorAll('book');
     
+    // Normalize query for more flexible matching
+    const normalizedQuery = query.trim().toLowerCase();
+    if (normalizedQuery.length < 1) return; // Allow single character searches
+    
     for (let book of books) {
         const bookNum = book.getAttribute('number');
         const bookName = bookNames[parseInt(bookNum) - 1];
@@ -447,7 +555,8 @@ function performSearch(query) {
                 const vNum = verse.getAttribute('number');
                 const text = verse.textContent.toLowerCase();
                 
-                if (text.includes(query)) {
+                // Check if the verse text contains the query
+                if (text.includes(normalizedQuery)) {
                     results.push({
                         ref: `${bookName} ${chNum}:${vNum}`,
                         bookNum, chNum, vNum, text: verse.textContent
@@ -464,7 +573,7 @@ function performSearch(query) {
         results.forEach(res => {
             const div = document.createElement('div');
             div.className = 'search-item';
-            div.innerHTML = `<span class="search-ref">${res.ref}</span> ${res.text.substring(0, 60)}...`;
+            div.innerHTML = `<span class="search-ref">${res.ref}</span> ${res.text.substring(0, 100)}...`;
             div.addEventListener('click', () => {
                 bookSelect.value = res.bookNum;
                 populateChapters(res.bookNum);
