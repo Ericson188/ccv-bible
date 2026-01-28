@@ -10,8 +10,8 @@ const bookNames = [
 ];
 
 const versions = [
-    { name: "English ESV", file: "/ccv-bible/bibles/EnglishESVBible.xml" },
-    { name: "Cebuano", file: "/ccv-bible/bibles/CebuanoBible.xml" }
+    { name: "English ESV", file: "/bibles/EnglishESVBible.xml" },
+    { name: "Cebuano", file: "/bibles/CebuanoBible.xml" }
 ];
 
 let currentXmlDoc = null;
