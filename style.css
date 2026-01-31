@@ -682,26 +682,6 @@ button:hover {
     display: none !important;
 }
 
-/* Animation for install button */
-@keyframes pulse {
-    0% {
-        transform: scale(1);
-        box-shadow: 0 0 0 0 rgba(52, 152, 219, 0.7);
-    }
-    70% {
-        transform: scale(1.05);
-        box-shadow: 0 0 0 10px rgba(52, 152, 219, 0);
-    }
-    100% {
-        transform: scale(1);
-        box-shadow: 0 0 0 0 rgba(52, 152, 219, 0);
-    }
-}
-
-.pulse {
-    animation: pulse 2s infinite;
-}
-
 /* Responsive Design */
 /* Color Picker Styles */
 .color-picker {
