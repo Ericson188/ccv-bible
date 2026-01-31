@@ -109,9 +109,42 @@ const fontSizeSlider = document.getElementById('font-size-slider');
 const fontSizeValue = document.getElementById('font-size-value');
 const searchIcon = document.getElementById('search-icon');
 
+// Notes Elements
+const notesSearch = document.getElementById('notes-search');
+const notesSearchIcon = document.getElementById('notes-search-icon');
+const prevNotesPageBtn = document.getElementById('prev-notes-page');
+const nextNotesPageBtn = document.getElementById('next-notes-page');
+const notesPageInfo = document.getElementById('notes-page-info');
+
+// Bookmarks Elements
+const bookmarksSearch = document.getElementById('bookmarks-search');
+const bookmarksSearchIcon = document.getElementById('bookmarks-search-icon');
+const prevBookmarksPageBtn = document.getElementById('prev-bookmarks-page');
+const nextBookmarksPageBtn = document.getElementById('next-bookmarks-page');
+const bookmarksPageInfo = document.getElementById('bookmarks-page-info');
+
+// Notes Pagination State
+let notesPage = 1;
+const notesPerPage = 5;
+let notesSearchQuery = '';
+
+// Bookmarks Pagination State
+let bookmarksPage = 1;
+const bookmarksPerPage = 5;
+let bookmarksSearchQuery = '';
+
 // Theme Management
 const currentTheme = localStorage.getItem('theme') || 'dark';
 const currentFontSize = localStorage.getItem('fontSize') || '16';
+
+// Navigation State
+const savedNavigation = JSON.parse(localStorage.getItem('bibleNavigation')) || {
+    versionIndex: 0,
+    bookNum: '1',
+    chapterNum: '1',
+    fromVerse: '1',
+    toVerse: '1'
+};
 
 // Apply saved theme on page load
 document.body.classList.add(`${currentTheme}-mode`);
@@ -170,9 +203,22 @@ function updateThemeIcon(theme) {
 // Initialize
 async function init() {
     populateVersions();
-    await loadBible(versions[0].file);
+    
+    // Load saved version if available
+    const versionIndex = savedNavigation.versionIndex;
+    if (versionIndex >= 0 && versionIndex < versions.length) {
+        versionSelect.value = versionIndex;
+        currentVersion = versions[versionIndex];
+        await loadBible(currentVersion.file);
+    } else {
+        await loadBible(versions[0].file);
+    }
+    
     setupEventListeners();
     renderPersonalization();
+    
+    // Restore navigation state after DOM is ready
+    restoreNavigationState();
 }
 
 function populateVersions() {
@@ -215,8 +261,8 @@ function populateBooks() {
     });
     
     if (bookSelect.options.length > 0) {
-        bookSelect.selectedIndex = 0;
-        populateChapters(bookSelect.value);
+        // Don't set default selection here - let restoreNavigationState handle it
+        populateChapters(bookSelect.value || savedNavigation.bookNum);
     }
 }
 
@@ -237,8 +283,8 @@ function populateChapters(bookNum) {
     }
     
     if (chapterSelect.options.length > 0) {
-        chapterSelect.selectedIndex = 0;
-        populateVerses(bookSelect.value, chapterSelect.value);
+        // Don't set default selection here - let restoreNavigationState handle it
+        populateVerses(bookSelect.value || savedNavigation.bookNum, chapterSelect.value || savedNavigation.chapterNum);
     }
 }
 
@@ -266,8 +312,7 @@ function populateVerses(bookNum, chapterNum) {
                 toVerseSelect.appendChild(opt2);
             });
             if (verses.length > 0) {
-                fromVerseSelect.value = "1";
-                toVerseSelect.value = verses.length.toString();
+                // Don't set default values here - let restoreNavigationState handle it
             }
         }
     }
@@ -311,7 +356,6 @@ function displayChapter() {
     }
     
     currentTitle.textContent = reference;
-    verseSearch.value = reference;
     
     versesContainer.innerHTML = '';
     verses.forEach(v => {
@@ -487,11 +531,34 @@ function setupEventListeners() {
         saveNoteBtn.addEventListener('click', () => {
             if (!currentVerseRef) return;
             const note = modalNoteText.value.trim();
+            
             if (note) {
+                const isNewNote = !userData.notes[currentVerseRef];
                 userData.notes[currentVerseRef] = note;
+                
+                Swal.fire({
+                    title: isNewNote ? 'Note Saved!' : 'Note Updated!',
+                    text: isNewNote ? 'Your note has been saved successfully.' : 'Your note has been updated.',
+                    icon: 'success',
+                    timer: 1500,
+                    showConfirmButton: false,
+                    toast: true,
+                    position: 'top-end'
+                });
             } else {
+                // If note is empty, remove it
                 delete userData.notes[currentVerseRef];
+                Swal.fire({
+                    title: 'Note Removed!',
+                    text: 'Your note has been deleted.',
+                    icon: 'info',
+                    timer: 1500,
+                    showConfirmButton: false,
+                    toast: true,
+                    position: 'top-end'
+                });
             }
+            
             saveUserData();
             displayChapter();
             verseModal.classList.add('hidden');
@@ -503,16 +570,20 @@ function setupEventListeners() {
         const versionIndex = parseInt(e.target.value);
         if (versionIndex >= 0 && versionIndex < versions.length) {
             currentVersion = versions[versionIndex];
+            saveNavigationState(); // Save before loading new version
             await loadBible(currentVersion.file);
+            restoreNavigationState(); // Restore after loading
         }
     });
 
     bookSelect.addEventListener('change', (e) => {
         populateChapters(e.target.value);
+        saveNavigationState();
     });
 
     chapterSelect.addEventListener('change', () => {
         populateVerses(bookSelect.value, chapterSelect.value);
+        saveNavigationState();
     });
 
     fromVerseSelect.addEventListener('change', () => {
@@ -520,6 +591,7 @@ function setupEventListeners() {
             toVerseSelect.value = fromVerseSelect.value;
         }
         displayChapter();
+        saveNavigationState();
     });
 
     toVerseSelect.addEventListener('change', () => {
@@ -527,6 +599,7 @@ function setupEventListeners() {
             fromVerseSelect.value = toVerseSelect.value;
         }
         displayChapter();
+        saveNavigationState();
     });
 
     document.getElementById('prev-chapter')?.addEventListener('click', () => {
@@ -539,6 +612,7 @@ function setupEventListeners() {
         }
         populateVerses(bookSelect.value, chapterSelect.value);
         displayChapter();
+        saveNavigationState();
     });
 
     document.getElementById('next-chapter')?.addEventListener('click', () => {
@@ -551,6 +625,7 @@ function setupEventListeners() {
         }
         populateVerses(bookSelect.value, chapterSelect.value);
         displayChapter();
+        saveNavigationState();
     });
 
     // Download button is handled by the PWA install logic
@@ -560,6 +635,98 @@ function setupEventListeners() {
     if (settingsBtn) {
         settingsBtn.addEventListener('click', () => {
             settingsModal.classList.remove('hidden');
+        });
+    }
+    
+    // Notes Search
+    if (notesSearch) {
+        let notesSearchTimeout;
+        notesSearch.addEventListener('input', (e) => {
+            clearTimeout(notesSearchTimeout);
+            notesSearchQuery = e.target.value.trim().toLowerCase();
+            notesPage = 1; // Reset to first page on search
+            renderNotes();
+        });
+        
+        notesSearch.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                notesSearchQuery = e.target.value.trim().toLowerCase();
+                notesPage = 1;
+                renderNotes();
+                notesSearch.blur();
+            }
+        });
+    }
+    
+    // Notes Search Icon
+    if (notesSearchIcon) {
+        notesSearchIcon.addEventListener('click', () => {
+            notesSearchQuery = notesSearch.value.trim().toLowerCase();
+            notesPage = 1;
+            renderNotes();
+        });
+    }
+    
+    // Notes Pagination
+    if (prevNotesPageBtn) {
+        prevNotesPageBtn.addEventListener('click', () => {
+            if (notesPage > 1) {
+                notesPage--;
+                renderNotes();
+            }
+        });
+    }
+    
+    if (nextNotesPageBtn) {
+        nextNotesPageBtn.addEventListener('click', () => {
+            notesPage++;
+            renderNotes();
+        });
+    }
+    
+    // Bookmarks Search
+    if (bookmarksSearch) {
+        let bookmarksSearchTimeout;
+        bookmarksSearch.addEventListener('input', (e) => {
+            clearTimeout(bookmarksSearchTimeout);
+            bookmarksSearchQuery = e.target.value.trim().toLowerCase();
+            bookmarksPage = 1; // Reset to first page on search
+            renderBookmarks();
+        });
+        
+        bookmarksSearch.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                bookmarksSearchQuery = e.target.value.trim().toLowerCase();
+                bookmarksPage = 1;
+                renderBookmarks();
+                bookmarksSearch.blur();
+            }
+        });
+    }
+    
+    // Bookmarks Search Icon
+    if (bookmarksSearchIcon) {
+        bookmarksSearchIcon.addEventListener('click', () => {
+            bookmarksSearchQuery = bookmarksSearch.value.trim().toLowerCase();
+            bookmarksPage = 1;
+            renderBookmarks();
+        });
+    }
+    
+    // Bookmarks Pagination
+    if (prevBookmarksPageBtn) {
+        prevBookmarksPageBtn.addEventListener('click', () => {
+            if (bookmarksPage > 1) {
+                bookmarksPage--;
+                renderBookmarks();
+            }
+        });
+    }
+    
+    if (nextBookmarksPageBtn) {
+        nextBookmarksPageBtn.addEventListener('click', () => {
+            bookmarksPage++;
+            renderBookmarks();
         });
     }
     
@@ -708,37 +875,318 @@ function performSearch(query) {
 }
 
 function renderPersonalization() {
-    const bookmarksContainer = document.getElementById('bookmarks-container');
-    const notesContainer = document.getElementById('notes-container');
+    // Render bookmarks with pagination and search
+    renderBookmarks();
     
-    if (bookmarksContainer) {
-        bookmarksContainer.innerHTML = userData.bookmarks.length ? '' : '<p>No bookmarks yet.</p>';
-        userData.bookmarks.forEach(ref => {
-            const div = document.createElement('div');
-            div.className = 'personalization-item';
-            div.innerHTML = `<strong>${ref}</strong>`;
-            div.style.cursor = 'pointer';
-            div.onclick = () => navigateToRef(ref);
-            bookmarksContainer.appendChild(div);
-        });
-    }
+    // Render notes with pagination and search
+    renderNotes();
+}
 
-    if (notesContainer) {
-        const noteEntries = Object.entries(userData.notes);
-        notesContainer.innerHTML = noteEntries.length ? '' : '<p>No notes yet.</p>';
-        noteEntries.forEach(([ref, note]) => {
-            const div = document.createElement('div');
-            div.className = 'personalization-item';
-            div.innerHTML = `<strong>${ref}</strong><p>${note}</p>`;
-            div.style.cursor = 'pointer';
-            div.onclick = () => navigateToRef(ref);
-            notesContainer.appendChild(div);
-        });
+function renderNotes() {
+    const notesContainer = document.getElementById('notes-container');
+    if (!notesContainer) return;
+    
+    // Get all notes and filter by search query
+    const allNotes = Object.entries(userData.notes);
+    const filteredNotes = notesSearchQuery 
+        ? allNotes.filter(([ref, note]) => 
+            ref.toLowerCase().includes(notesSearchQuery) || 
+            note.toLowerCase().includes(notesSearchQuery)
+        )
+        : allNotes;
+    
+    // Calculate pagination
+    const totalNotes = filteredNotes.length;
+    const totalPages = Math.ceil(totalNotes / notesPerPage);
+    
+    // Handle edge cases
+    if (totalPages === 0) {
+        notesPage = 1;
+        notesContainer.innerHTML = '<p>No notes found.</p>';
+        updateNotesPagination(0, 0);
+        return;
+    }
+    
+    if (notesPage > totalPages) {
+        notesPage = totalPages;
+    }
+    
+    // Get notes for current page
+    const startIndex = (notesPage - 1) * notesPerPage;
+    const endIndex = startIndex + notesPerPage;
+    const pageNotes = filteredNotes.slice(startIndex, endIndex);
+    
+    // Render notes
+    notesContainer.innerHTML = '';
+    pageNotes.forEach(([ref, note]) => {
+        const div = document.createElement('div');
+        div.className = 'personalization-item';
+        div.innerHTML = `
+            <div class="note-header">
+                <strong>${ref}</strong>
+                <div class="note-actions">
+                    <span class="note-edit" title="Edit note">✏️</span>
+                    <span class="note-delete" title="Delete note">🗑️</span>
+                </div>
+            </div>
+            <p>${note}</p>
+        `;
+        div.style.cursor = 'pointer';
+        div.onclick = (e) => {
+            // Only navigate if clicking on the note content, not action buttons
+            if (!e.target.classList.contains('note-edit') && !e.target.classList.contains('note-delete')) {
+                navigateToRef(ref);
+            }
+        };
+        
+        // Add event listeners for action icons
+        const editIcon = div.querySelector('.note-edit');
+        const deleteIcon = div.querySelector('.note-delete');
+        
+        if (editIcon) {
+            editIcon.addEventListener('click', (e) => {
+                e.stopPropagation();
+                editNote(ref, note);
+            });
+        }
+        
+        if (deleteIcon) {
+            deleteIcon.addEventListener('click', (e) => {
+                e.stopPropagation();
+                deleteNote(ref);
+            });
+        }
+        
+        notesContainer.appendChild(div);
+    });
+    
+    // Update pagination controls
+    updateNotesPagination(totalNotes, totalPages);
+}
+
+function updateNotesPagination(totalNotes, totalPages) {
+    // Update page info
+    if (notesPageInfo) {
+        notesPageInfo.textContent = `Page ${notesPage} of ${totalPages}`;
+    }
+    
+    // Update button states
+    if (prevNotesPageBtn) {
+        prevNotesPageBtn.disabled = notesPage <= 1;
+    }
+    
+    if (nextNotesPageBtn) {
+        nextNotesPageBtn.disabled = notesPage >= totalPages;
+    }
+    
+    // Hide pagination if not needed
+    const paginationControls = document.getElementById('notes-pagination');
+    if (paginationControls) {
+        paginationControls.style.display = totalPages > 1 ? 'flex' : 'none';
     }
 }
 
 function navigateToRef(ref) {
     navigateToParsedRef(ref);
+}
+
+function deleteBookmark(ref) {
+    Swal.fire({
+        title: 'Delete Bookmark?',
+        text: `Are you sure you want to delete the bookmark for ${ref}?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const index = userData.bookmarks.indexOf(ref);
+            if (index > -1) {
+                userData.bookmarks.splice(index, 1);
+                saveUserData();
+                renderBookmarks();
+                
+                // Show success message
+                Swal.fire({
+                    title: 'Deleted!',
+                    text: 'Your bookmark has been deleted.',
+                    icon: 'success',
+                    timer: 1500,
+                    showConfirmButton: false,
+                    toast: true,
+                    position: 'top-end'
+                });
+            }
+        }
+    });
+}
+
+function renderBookmarks() {
+    const bookmarksContainer = document.getElementById('bookmarks-container');
+    if (!bookmarksContainer) return;
+    
+    // Filter bookmarks by search query
+    const filteredBookmarks = bookmarksSearchQuery 
+        ? userData.bookmarks.filter(ref => 
+            ref.toLowerCase().includes(bookmarksSearchQuery)
+        )
+        : userData.bookmarks;
+    
+    // Calculate pagination
+    const totalBookmarks = filteredBookmarks.length;
+    const totalPages = Math.ceil(totalBookmarks / bookmarksPerPage);
+    
+    // Handle edge cases
+    if (totalPages === 0) {
+        bookmarksPage = 1;
+        bookmarksContainer.innerHTML = '<p>No bookmarks found.</p>';
+        updateBookmarksPagination(0, 0);
+        return;
+    }
+    
+    if (bookmarksPage > totalPages) {
+        bookmarksPage = totalPages;
+    }
+    
+    // Get bookmarks for current page
+    const startIndex = (bookmarksPage - 1) * bookmarksPerPage;
+    const endIndex = startIndex + bookmarksPerPage;
+    const pageBookmarks = filteredBookmarks.slice(startIndex, endIndex);
+    
+    // Render bookmarks
+    bookmarksContainer.innerHTML = '';
+    pageBookmarks.forEach(ref => {
+        const div = document.createElement('div');
+        div.className = 'personalization-item';
+        div.innerHTML = `
+            <div class="bookmark-header">
+                <strong>${ref}</strong>
+                <div class="bookmark-actions">
+                    <span class="bookmark-delete" title="Delete bookmark">🗑️</span>
+                </div>
+            </div>
+        `;
+        div.style.cursor = 'pointer';
+        div.onclick = (e) => {
+            // Only navigate if clicking on the bookmark content, not action buttons
+            if (!e.target.classList.contains('bookmark-delete')) {
+                navigateToRef(ref);
+            }
+        };
+        
+        // Add event listener for delete icon
+        const deleteIcon = div.querySelector('.bookmark-delete');
+        if (deleteIcon) {
+            deleteIcon.addEventListener('click', (e) => {
+                e.stopPropagation();
+                deleteBookmark(ref);
+            });
+        }
+        
+        bookmarksContainer.appendChild(div);
+    });
+    
+    // Update pagination controls
+    updateBookmarksPagination(totalBookmarks, totalPages);
+}
+
+function updateBookmarksPagination(totalBookmarks, totalPages) {
+    // Update page info
+    if (bookmarksPageInfo) {
+        bookmarksPageInfo.textContent = `Page ${bookmarksPage} of ${totalPages}`;
+    }
+    
+    // Update button states
+    if (prevBookmarksPageBtn) {
+        prevBookmarksPageBtn.disabled = bookmarksPage <= 1;
+    }
+    
+    if (nextBookmarksPageBtn) {
+        nextBookmarksPageBtn.disabled = bookmarksPage >= totalPages;
+    }
+    
+    // Hide pagination if not needed
+    const paginationControls = document.getElementById('bookmarks-pagination');
+    if (paginationControls) {
+        paginationControls.style.display = totalPages > 1 ? 'flex' : 'none';
+    }
+}
+
+function editNote(ref, currentNote) {
+    // Open the verse modal with the note content
+    currentVerseRef = ref;
+    openVerseModal(ref);
+    
+    // Pre-fill the note text
+    if (modalNoteText) {
+        modalNoteText.value = currentNote;
+    }
+    
+    // Show success message
+    Swal.fire({
+        title: 'Editing Note',
+        text: `Editing note for ${ref}`,
+        icon: 'info',
+        timer: 1500,
+        showConfirmButton: false,
+        toast: true,
+        position: 'top-end'
+    });
+    
+    // Focus the note textarea
+    setTimeout(() => {
+        if (modalNoteText) {
+            modalNoteText.focus();
+            modalNoteText.select();
+        }
+    }, 100);
+}
+
+function deleteNote(ref) {
+    Swal.fire({
+        title: 'Delete Note?',
+        text: `Are you sure you want to delete the note for ${ref}?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            delete userData.notes[ref];
+            saveUserData();
+            renderNotes();
+            
+            // Show success message
+            Swal.fire({
+                title: 'Deleted!',
+                text: 'Your note has been deleted.',
+                icon: 'success',
+                timer: 1500,
+                showConfirmButton: false,
+                toast: true,
+                position: 'top-end'
+            });
+            
+            // If we're on the last page and it becomes empty, go to previous page
+            const allNotes = Object.entries(userData.notes);
+            const filteredNotes = notesSearchQuery 
+                ? allNotes.filter(([r, note]) => 
+                    r.toLowerCase().includes(notesSearchQuery) || 
+                    note.toLowerCase().includes(notesSearchQuery)
+                )
+                : allNotes;
+            
+            const totalPages = Math.ceil(filteredNotes.length / notesPerPage);
+            if (notesPage > totalPages && totalPages > 0) {
+                notesPage = totalPages;
+                renderNotes();
+            }
+        }
+    });
 }
 
 function navigateToParsedRef(query) {
@@ -795,6 +1243,49 @@ function navigateToParsedRef(query) {
     
     document.getElementById('tab-bible').click();
     return true;
+}
+
+// Navigation State Management
+function saveNavigationState() {
+    const navigationState = {
+        versionIndex: parseInt(versionSelect.value) || 0,
+        bookNum: bookSelect.value || '1',
+        chapterNum: chapterSelect.value || '1',
+        fromVerse: fromVerseSelect.value || '1',
+        toVerse: toVerseSelect.value || '1'
+    };
+    
+    localStorage.setItem('bibleNavigation', JSON.stringify(navigationState));
+    console.log('[Navigation] State saved:', navigationState);
+}
+
+function restoreNavigationState() {
+    // Apply saved selections
+    if (savedNavigation.bookNum && bookSelect.querySelector(`option[value="${savedNavigation.bookNum}"]`)) {
+        bookSelect.value = savedNavigation.bookNum;
+    }
+    
+    if (savedNavigation.chapterNum && chapterSelect.querySelector(`option[value="${savedNavigation.chapterNum}"]`)) {
+        chapterSelect.value = savedNavigation.chapterNum;
+    }
+    
+    // Populate verses for the selected chapter
+    if (bookSelect.value && chapterSelect.value) {
+        populateVerses(bookSelect.value, chapterSelect.value);
+        
+        // Set verse range selections
+        if (savedNavigation.fromVerse && fromVerseSelect.querySelector(`option[value="${savedNavigation.fromVerse}"]`)) {
+            fromVerseSelect.value = savedNavigation.fromVerse;
+        }
+        
+        if (savedNavigation.toVerse && toVerseSelect.querySelector(`option[value="${savedNavigation.toVerse}"]`)) {
+            toVerseSelect.value = savedNavigation.toVerse;
+        }
+        
+        displayChapter();
+    }
+    
+    console.log('[Navigation] State restored:', savedNavigation);
 }
 
 // Cache clearing function
