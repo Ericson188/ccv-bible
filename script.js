@@ -62,7 +62,9 @@ const bookNames = [
 
 const versions = [
     { name: "English ESV", file: "./bibles/EnglishESVBible.xml" },
-    { name: "Cebuano", file: "./bibles/CebuanoBible.xml" }
+    { name: "Cebuano", file: "./bibles/CebuanoBible.xml" },
+    { name: "Cebuano APSD", file: "./bibles/CebuanoAPSDBible.xml" },
+    { name: "Cebuano RCPV", file: "./bibles/CebuanoRCPVBible.xml" }
 ];
 
 let currentXmlDoc = null;
@@ -71,10 +73,20 @@ let currentVerseRef = null;
 
 // Personalization Data
 let userData = JSON.parse(localStorage.getItem('bibleUserData')) || {
-    highlights: [],
+    highlights: {}, // Changed from array to object: { "reference": "color" }
     bookmarks: [],
     notes: {}
 };
+
+// Migrate old data format if needed
+if (Array.isArray(userData.highlights)) {
+    const oldHighlights = userData.highlights;
+    userData.highlights = {};
+    oldHighlights.forEach(ref => {
+        userData.highlights[ref] = 'yellow'; // Default color for migrated highlights
+    });
+    localStorage.setItem('bibleUserData', JSON.stringify(userData));
+}
 
 function saveUserData() {
     localStorage.setItem('bibleUserData', JSON.stringify(userData));
@@ -309,8 +321,10 @@ function displayChapter() {
             const ref = `${bookName} ${chapterNum}:${num}`;
             const verseDiv = document.createElement('div');
             verseDiv.className = 'verse';
-            if (userData.highlights.includes(ref)) {
+            // Check if verse is highlighted and apply color class
+            if (userData.highlights[ref]) {
                 verseDiv.classList.add('highlighted');
+                verseDiv.classList.add(`highlight-${userData.highlights[ref]}`);
             }
             
             let noteIndicator = userData.notes[ref] ? '<span class="note-indicator">📝</span>' : '';
@@ -420,15 +434,34 @@ function setupEventListeners() {
         }
     });
 
+    // Color picker functionality
+    const colorOptions = document.querySelectorAll('.color-option');
+    let selectedColor = 'yellow';
+    
+    colorOptions.forEach(option => {
+        option.addEventListener('click', () => {
+            // Remove active class from all options
+            colorOptions.forEach(opt => opt.classList.remove('active'));
+            // Add active class to clicked option
+            option.classList.add('active');
+            // Update selected color
+            selectedColor = option.dataset.color;
+        });
+    });
+
     if (modalHighlightBtn) {
         modalHighlightBtn.addEventListener('click', () => {
             if (!currentVerseRef) return;
-            const index = userData.highlights.indexOf(currentVerseRef);
-            if (index > -1) {
-                userData.highlights.splice(index, 1);
+            
+            // Check if verse is already highlighted
+            if (userData.highlights[currentVerseRef]) {
+                // Remove highlight
+                delete userData.highlights[currentVerseRef];
             } else {
-                userData.highlights.push(currentVerseRef);
+                // Add highlight with selected color
+                userData.highlights[currentVerseRef] = selectedColor;
             }
+            
             saveUserData();
             displayChapter();
             updateModalButtons();
@@ -576,9 +609,22 @@ function openVerseModal(ref) {
 
 function updateModalButtons() {
     if (modalHighlightBtn) {
-        modalHighlightBtn.textContent = userData.highlights.includes(currentVerseRef) 
+        const isHighlighted = userData.highlights[currentVerseRef];
+        modalHighlightBtn.textContent = isHighlighted 
             ? 'Remove Highlight' 
             : 'Highlight';
+        
+        // Update color picker selection
+        const colorPicker = document.getElementById('highlight-color-picker');
+        if (colorPicker) {
+            const colorOptions = colorPicker.querySelectorAll('.color-option');
+            colorOptions.forEach(option => {
+                option.classList.remove('active');
+                if (option.dataset.color === (isHighlighted || 'yellow')) {
+                    option.classList.add('active');
+                }
+            });
+        }
     }
     if (modalBookmarkBtn) {
         modalBookmarkBtn.textContent = userData.bookmarks.includes(currentVerseRef) 
