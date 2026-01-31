@@ -8,45 +8,6 @@ window.addEventListener('beforeinstallprompt', (e) => {
     deferredPrompt = e;
     // Update UI to notify the user they can install the PWA
     showInstallButton();
-    
-    // Show notification about install availability
-    if (typeof Swal !== 'undefined') {
-        Swal.fire({
-            title: 'App Install Available!',
-            text: 'You can install this app for offline use!',
-            icon: 'info',
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: true
-        });
-    }
-});
-
-// Check if app is already installed
-window.addEventListener('appinstalled', (e) => {
-    console.log('App was installed successfully!');
-    
-    // Hide install button after successful installation
-    const downloadBtn = document.getElementById('download-btn');
-    if (downloadBtn) {
-        downloadBtn.style.display = 'none';
-    }
-    
-    // Show success notification
-    if (typeof Swal !== 'undefined') {
-        Swal.fire({
-            title: 'App Installed!',
-            text: 'App has been installed successfully!',
-            icon: 'success',
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 2000,
-            timerProgressBar: true
-        });
-    }
 });
 
 function showInstallButton() {
@@ -54,11 +15,7 @@ function showInstallButton() {
     if (downloadBtn) {
         downloadBtn.style.display = 'inline-block';
         downloadBtn.textContent = 'Install App';
-        downloadBtn.title = 'Install this app for offline use';
         downloadBtn.addEventListener('click', installApp);
-        
-        // Add animation effect to make it more noticeable
-        downloadBtn.style.animation = 'pulse 2s infinite';
     }
 }
 
@@ -72,52 +29,11 @@ function installApp() {
     deferredPrompt.userChoice.then((choiceResult) => {
         if (choiceResult.outcome === 'accepted') {
             console.log('User accepted the install prompt');
-            
-            // Show success notification
-            if (typeof Swal !== 'undefined') {
-                Swal.fire({
-                    title: 'Installing...',
-                    text: 'App installation in progress',
-                    icon: 'info',
-                    toast: true,
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 2000,
-                    timerProgressBar: true
-                });
-            }
         } else {
             console.log('User dismissed the install prompt');
-            
-            // Show info notification
-            if (typeof Swal !== 'undefined') {
-                Swal.fire({
-                    title: 'Install Cancelled',
-                    text: 'You can install later from browser menu',
-                    icon: 'info',
-                    toast: true,
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 2000,
-                    timerProgressBar: true
-                });
-            }
         }
         deferredPrompt = null;
     });
-}
-
-// Check if app is already installed
-function checkInstallStatus() {
-    // Check if app is running in standalone mode
-    if (window.matchMedia('(display-mode: standalone)').matches || 
-        window.navigator.standalone === true) {
-        // App is installed, hide install button
-        const downloadBtn = document.getElementById('download-btn');
-        if (downloadBtn) {
-            downloadBtn.style.display = 'none';
-        }
-    }
 }
 
 // Register service worker
@@ -1417,25 +1333,4 @@ async function clearAllCaches() {
 }
 
 // Initialize the app
-async function init() {
-    populateVersions();
-    
-    // Load saved version if available
-    const versionIndex = savedNavigation.versionIndex;
-    if (versionIndex >= 0 && versionIndex < versions.length) {
-        versionSelect.value = versionIndex;
-        currentVersion = versions[versionIndex];
-        await loadBible(currentVersion.file);
-    } else {
-        await loadBible(versions[0].file);
-    }
-    
-    setupEventListeners();
-    renderPersonalization();
-    
-    // Restore navigation state after DOM is ready
-    restoreNavigationState();
-    
-    // Check if app is already installed
-    checkInstallStatus();
-}
+init();
