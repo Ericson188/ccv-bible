@@ -103,7 +103,16 @@
                 <h3 id="modal-verse-ref"></h3>
             </div>
             <div class="modal-actions">
-                <button id="modal-highlight" class="inline-btn">Highlight</button>
+                <div class="highlight-controls">
+                    <button id="modal-highlight" class="inline-btn">Highlight</button>
+                    <div class="color-picker" id="highlight-color-picker">
+                        <button class="color-option active" data-color="yellow" title="Yellow"></button>
+                        <button class="color-option" data-color="green" title="Green"></button>
+                        <button class="color-option" data-color="blue" title="Blue"></button>
+                        <button class="color-option" data-color="pink" title="Pink"></button>
+                        <button class="color-option" data-color="orange" title="Orange"></button>
+                    </div>
+                </div>
                 <button id="modal-bookmark" class="inline-btn">Bookmark</button>
             </div>
             <textarea id="modal-note-text" placeholder="Add a note..."></textarea>
