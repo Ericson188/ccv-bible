@@ -68,6 +68,32 @@
     --modal-background: var(--modal-background-dark);
 }
 
+/* Dark mode specific highlight colors */
+.dark-mode .verse.highlight-yellow {
+    background-color: rgba(102, 77, 0, 0.3);
+    border-left-color: #f39c12;
+}
+
+.dark-mode .verse.highlight-green {
+    background-color: rgba(0, 51, 25, 0.3);
+    border-left-color: #28a745;
+}
+
+.dark-mode .verse.highlight-blue {
+    background-color: rgba(0, 43, 54, 0.3);
+    border-left-color: #17a2b8;
+}
+
+.dark-mode .verse.highlight-pink {
+    background-color: rgba(76, 0, 38, 0.3);
+    border-left-color: #e83e8c;
+}
+
+.dark-mode .verse.highlight-orange {
+    background-color: rgba(84, 36, 5, 0.3);
+    border-left-color: #fd7e14;
+}
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
     background-color: var(--background-color);
@@ -280,9 +306,61 @@ button:hover {
     border-left-color: var(--secondary-color);
 }
 
+/* Highlight Colors */
+/* Highlight Colors */
 .verse.highlighted {
     background-color: rgba(243, 156, 18, 0.15);
     border-left-color: var(--highlight-color);
+}
+
+.verse.highlight-yellow {
+    background-color: rgba(255, 243, 205, 0.3);
+    border-left-color: #f39c12;
+}
+
+.verse.highlight-green {
+    background-color: rgba(212, 237, 218, 0.3);
+    border-left-color: #28a745;
+}
+
+.verse.highlight-blue {
+    background-color: rgba(204, 229, 255, 0.3);
+    border-left-color: #17a2b8;
+}
+
+.verse.highlight-pink {
+    background-color: rgba(248, 215, 235, 0.3);
+    border-left-color: #e83e8c;
+}
+
+.verse.highlight-orange {
+    background-color: rgba(255, 230, 204, 0.3);
+    border-left-color: #fd7e14;
+}
+
+.verse.highlight-yellow {
+    background-color: rgba(255, 243, 205, 0.3);
+    border-left-color: #f39c12;
+}
+
+.verse.highlight-green {
+    background-color: rgba(212, 237, 218, 0.3);
+    border-left-color: #28a745;
+}
+
+.verse.highlight-blue {
+    background-color: rgba(204, 229, 255, 0.3);
+    border-left-color: #17a2b8;
+}
+
+.verse.highlight-pink {
+    background-color: rgba(248, 215, 235, 0.3);
+    border-left-color: #e83e8c;
+}
+
+.verse.highlight-orange {
+    background-color: rgba(255, 230, 204, 0.3);
+    border-left-color: #fd7e14;
 }
 
 .verse-number {
@@ -452,6 +530,60 @@ button:hover {
 }
 
 /* Responsive Design */
+/* Color Picker Styles */
+.color-picker {
+    display: flex;
+    gap: 0.25rem;
+    margin-top: 0.5rem;
+    justify-content: center;
+}
+
+.color-option {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.color-option.active {
+    border-color: var(--text-color);
+    transform: scale(1.1);
+}
+
+.color-option:hover {
+    transform: scale(1.15);
+}
+
+.color-option[data-color="yellow"] {
+    background-color: #f39c12;
+}
+
+.color-option[data-color="green"] {
+    background-color: #28a745;
+}
+
+.color-option[data-color="blue"] {
+    background-color: #17a2b8;
+}
+
+.color-option[data-color="pink"] {
+    background-color: #e83e8c;
+}
+
+.color-option[data-color="orange"] {
+    background-color: #fd7e14;
+}
+
+.highlight-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
 @media (max-width: 768px) {
     .top-bar {
         flex-direction: row;
