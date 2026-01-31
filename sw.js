@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bible-app-v1';
+const CACHE_NAME = 'bible-app-v2';
 const ASSETS = [
     './',
     './index.html',
@@ -6,7 +6,9 @@ const ASSETS = [
     './script.js',
     './manifest.json',
     './bibles/EnglishESVBible.xml',
-    './bibles/CebuanoBible.xml'
+    './bibles/CebuanoBible.xml',
+    './bibles/CebuanoAPSDBible.xml',
+    './bibles/CebuanoRCPVBible.xml'
 ];
 
 self.addEventListener('install', event => {
