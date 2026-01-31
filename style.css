@@ -404,6 +404,159 @@ button:hover {
     margin-top: 0.5rem;
 }
 
+/* Notes Controls */
+.notes-controls {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background-color: var(--surface-color);
+    border-radius: 4px;
+}
+
+.notes-controls .search-wrapper {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+#notes-search {
+    width: 100%;
+    padding: 0.75rem 2.5rem 0.75rem 1rem;
+    background-color: var(--background-color);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    color: var(--text-color);
+    font-size: 1rem;
+}
+
+#notes-search:focus {
+    outline: none;
+    border-color: var(--secondary-color);
+}
+
+#notes-search-icon {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+#notes-search-icon:hover {
+    color: var(--secondary-color);
+}
+
+.pagination-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+#notes-page-info {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+#prev-notes-page, #next-notes-page {
+    padding: 0.5rem 1rem;
+    min-width: 80px;
+}
+
+/* Note Actions */
+.note-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.note-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.note-edit, .note-delete {
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: all 0.2s;
+    font-size: 1.1rem;
+}
+
+.note-edit:hover, .note-delete:hover {
+    background-color: var(--background-color);
+    transform: scale(1.1);
+}
+
+/* Bookmark Actions */
+.bookmark-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.bookmark-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.bookmark-delete {
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: all 0.2s;
+    font-size: 1.1rem;
+}
+
+.bookmark-delete:hover {
+    background-color: var(--background-color);
+    transform: scale(1.1);
+}
+
+/* Bookmarks Controls */
+.bookmarks-controls {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background-color: var(--surface-color);
+    border-radius: 4px;
+}
+
+.bookmarks-controls .search-wrapper {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+#bookmarks-search {
+    width: 100%;
+    padding: 0.75rem 2.5rem 0.75rem 1rem;
+    background-color: var(--background-color);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    color: var(--text-color);
+    font-size: 1rem;
+}
+
+#bookmarks-search:focus {
+    outline: none;
+    border-color: var(--secondary-color);
+}
+
+#bookmarks-search-icon {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+#bookmarks-search-icon:hover {
+    color: var(--secondary-color);
+}
+
 /* Modal */
 .modal {
     position: fixed;
