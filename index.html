@@ -5,7 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Bible App</title>
     <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="sweetalert2.min.css" />
     <link rel="manifest" href="manifest.json" />
+    <!-- Local SweetAlert2 -->
+    <script src="sweetalert2.min.js"></script>
     <meta name="theme-color" content="#121212" id="theme-color-meta" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -25,7 +28,7 @@
         </div>
         <div class="search-container">
             <div class="search-wrapper">
-                <input type="text" id="verse-search" placeholder="Search for a verse or keyword...">
+                <input type="text" id="verse-search">
                 <span id="search-icon">🔍</span>
             </div>
             <div id="search-results" class="hidden"></div>
@@ -46,9 +49,9 @@
 
     <main id="content">
         <div id="personalization-tabs">
-            <button id="tab-bible" class="active">Bible</button>
-            <button id="tab-bookmarks">Bookmarks</button>
-            <button id="tab-notes">Notes</button>
+            <button id="tab-bible" class="active">✝️ Bible</button>
+            <button id="tab-bookmarks">⭐ Bookmarks</button>
+            <button id="tab-notes">💬 Notes</button>
         </div>
 
         <div id="bible-display" class="tab-content">
@@ -58,11 +61,33 @@
 
         <div id="bookmarks-display" class="tab-content hidden">
             <h2>Bookmarks</h2>
+            <div class="bookmarks-controls">
+                <div class="search-wrapper">
+                    <input type="text" id="bookmarks-search" placeholder="Search bookmarks...">
+                    <span id="bookmarks-search-icon">🔍</span>
+                </div>
+                <div class="pagination-controls" id="bookmarks-pagination">
+                    <button id="prev-bookmarks-page" class="inline-btn" disabled>← Prev</button>
+                    <span id="bookmarks-page-info">Page 1 of 1</span>
+                    <button id="next-bookmarks-page" class="inline-btn" disabled>Next →</button>
+                </div>
+            </div>
             <div id="bookmarks-container"></div>
         </div>
 
         <div id="notes-display" class="tab-content hidden">
             <h2>Your Notes</h2>
+            <div class="notes-controls">
+                <div class="search-wrapper">
+                    <input type="text" id="notes-search" placeholder="Search notes...">
+                    <span id="notes-search-icon">🔍</span>
+                </div>
+                <div class="pagination-controls" id="notes-pagination">
+                    <button id="prev-notes-page" class="inline-btn" disabled>← Prev</button>
+                    <span id="notes-page-info">Page 1 of 1</span>
+                    <button id="next-notes-page" class="inline-btn" disabled>Next →</button>
+                </div>
+            </div>
             <div id="notes-container"></div>
         </div>
     </main>
@@ -104,7 +129,7 @@
             </div>
             <div class="modal-actions">
                 <div class="highlight-controls">
-                    <button id="modal-highlight" class="inline-btn">Highlight</button>
+                    <button id="modal-highlight" class="inline-btn">🎨</button>
                     <div class="color-picker" id="highlight-color-picker">
                         <button class="color-option active" data-color="yellow" title="Yellow"></button>
                         <button class="color-option" data-color="green" title="Green"></button>
@@ -113,13 +138,16 @@
                         <button class="color-option" data-color="orange" title="Orange"></button>
                     </div>
                 </div>
-                <button id="modal-bookmark" class="inline-btn">Bookmark</button>
+                <button id="modal-bookmark" class="inline-btn">🌟</button>
             </div>
             <textarea id="modal-note-text" placeholder="Add a note..."></textarea>
             <button id="save-note" class="inline-btn">Save Note</button>
         </div>
     </div>
 
+    <!-- Local SweetAlert2 -->
+    <script src="sweetalert2.min.js"></script>
+    <!-- Main App Script -->
     <script src="script.js"></script>
 </body>
 </html>
