@@ -88,6 +88,72 @@ if (Array.isArray(userData.highlights)) {
     localStorage.setItem('bibleUserData', JSON.stringify(userData));
 }
 
+// Clipboard copy function
+async function copyVerseText(text, reference, buttonElement) {
+    try {
+        // Create clean text without HTML tags
+        const cleanText = `${reference}\n${text}`;
+        
+        // Try Clipboard API first (modern browsers)
+        if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(cleanText);
+        } else {
+            // Fallback for older browsers
+            const textArea = document.createElement('textarea');
+            textArea.value = cleanText;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            textArea.style.top = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            document.execCommand('copy');
+            textArea.remove();
+        }
+        
+        // Visual feedback
+        showCopyFeedback(buttonElement, '✓');
+        
+        // Show SweetAlert success message
+        Swal.fire({
+            title: 'Copied!',
+            text: `${reference} copied to clipboard`,
+            icon: 'success',
+            timer: 1500,
+            showConfirmButton: false,
+            toast: true,
+            position: 'top-end'
+        });
+        
+        console.log(`Copied verse: ${reference}`);
+    } catch (err) {
+        console.error('Failed to copy verse:', err);
+        showCopyFeedback(buttonElement, '✗');
+        // Show SweetAlert error message
+        Swal.fire({
+            title: 'Copy Failed!',
+            text: 'Unable to copy verse to clipboard',
+            icon: 'error',
+            timer: 1500,
+            showConfirmButton: false,
+            toast: true,
+            position: 'top-end'
+        });
+    }
+}
+
+// Show visual feedback on copy button
+function showCopyFeedback(button, message) {
+    const originalText = button.textContent;
+    button.textContent = message;
+    button.classList.add('copied');
+    
+    setTimeout(() => {
+        button.textContent = originalText;
+        button.classList.remove('copied');
+    }, 1000);
+}
+
 function saveUserData() {
     localStorage.setItem('bibleUserData', JSON.stringify(userData));
 }
@@ -372,7 +438,33 @@ function displayChapter() {
             }
             
             let noteIndicator = userData.notes[ref] ? '<span class="note-indicator">📝</span>' : '';
-            verseDiv.innerHTML = `<span class="verse-number">${num}</span> ${text}${noteIndicator}`;
+            verseDiv.innerHTML = `
+                <span class="verse-number">${num}</span> 
+                ${text}${noteIndicator}
+                <button class="copy-btn" title="Copy verse" aria-label="Copy ${ref}">📋</button>
+            `;
+            
+            // Add copy functionality
+            const copyBtn = verseDiv.querySelector('.copy-btn');
+            copyBtn.addEventListener('click', (e) => {
+                // Prevent event bubbling to parent elements
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Copy the verse text
+                copyVerseText(text, ref, copyBtn);
+            });
+            
+            // Prevent other mouse events from bubbling up
+            copyBtn.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+            });
+            
+            copyBtn.addEventListener('mouseup', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+            });
             
             verseDiv.addEventListener('click', () => openVerseModal(ref));
             versesContainer.appendChild(verseDiv);
